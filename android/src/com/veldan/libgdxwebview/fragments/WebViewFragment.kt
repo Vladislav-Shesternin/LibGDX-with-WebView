@@ -8,12 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.DownloadListener
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import com.veldan.libgdxwebview.activityMain
 import com.veldan.libgdxwebview.databinding.FragmentWebviewBinding
 import im.delight.android.webview.AdvancedWebView
 
-lateinit var webViewFragment: WebViewFragment
+lateinit var webViewFragment: WebViewFragment private set
 
 class WebViewFragment : Fragment() {
 
@@ -23,6 +24,7 @@ class WebViewFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         webViewFragment = this
+        onBackPressed()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -34,6 +36,7 @@ class WebViewFragment : Fragment() {
             setMixedContentAllowed(false)
             loadUrl("https://convertio.co/ru/")
         }
+
         return binding.root
     }
 
@@ -57,7 +60,7 @@ class WebViewFragment : Fragment() {
         webview.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun getAdvancedWebViewListener() = object : AdvancedWebView.Listener{
+    private fun getAdvancedWebViewListener() = object : AdvancedWebView.Listener {
         override fun onPageStarted(url: String?, favicon: Bitmap?) {}
         override fun onPageFinished(url: String?) {}
         override fun onPageError(errorCode: Int, description: String?, failingUrl: String?) {}
@@ -69,5 +72,11 @@ class WebViewFragment : Fragment() {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = Uri.parse(url)
         activityMain.startActivity(intent)
+    }
+
+    private fun onBackPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            if (webview.onBackPressed()) requireActivity().finish()
+        }
     }
 }
